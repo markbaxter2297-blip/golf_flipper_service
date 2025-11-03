@@ -35,15 +35,24 @@ async def on_startup() -> None:
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
-# test alert route that works for GET + POST
+# GET + POST test route that prints any error to the browser
 @app.get("/test-alert")
 @app.post("/test-alert")
 def test_alert():
-    """Test endpoint for WhatsApp alert (works for browser GET + API POST)."""
-    from app.messaging import send_test_message
+    """
+    Test endpoint for WhatsApp alert (works in browser + POST tools).
+    On error, it returns the full traceback as plain text so we can see the cause.
+    """
     try:
+        from app.messaging import send_test_message
         result = send_test_message()
         return {"status": "ok", "result": result}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
-
+        import traceback
+        tb = traceback.format_exc()
+        # show the actual error in the browser instead of a generic 500 page
+        return Response(
+            content=f"ERROR: {e}\n\n{tb}",
+            media_type="text/plain",
+            status_code=500,
+        )
