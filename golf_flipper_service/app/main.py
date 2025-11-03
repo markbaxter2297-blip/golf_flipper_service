@@ -31,27 +31,19 @@ async def on_startup() -> None:
     asyncio.create_task(poller.start())
     logger.info("Service started and polling scheduled.")
 
-
 @app.get("/health")
-async def health() -> Dict[str, str]:
-    """Health check endpoint."""
+def health() -> dict[str, str]:
     return {"status": "ok"}
 
-
-from fastapi import Request
-
-@app.api_route("/test-alert", methods=["GET", "POST"])
-async def test_alert(request: Request):
-    """
-    Test endpoint for WhatsApp alert.
-    Works for both GET (browser) and POST (API tools).
-    """
+# test alert route that works for GET + POST
+@app.get("/test-alert")
+@app.post("/test-alert")
+def test_alert():
+    """Test endpoint for WhatsApp alert (works for browser GET + API POST)."""
     from app.messaging import send_test_message
     try:
         result = send_test_message()
         return {"status": "ok", "result": result}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
-@app.get("/test-alert")
-def test_alert_get():
-    return test_alert()
+
