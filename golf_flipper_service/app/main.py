@@ -54,3 +54,59 @@ async def test_alert():
             media_type="text/plain",
             status_code=500,
         )
+@app.get("/test-vinted")
+async def test_vinted():
+    """
+    One-off Vinted probe using your ENV cookie with full browser-like headers.
+    Accepts either:
+      - raw session token (vinted_fr_session value), or
+      - a full Cookie header string (key=value; key2=value2; ...)
+    Returns first few item titles on success, or the exact HTTP error text.
+    """
+    import httpx
+
+    base = "https://www.vinted.co.uk"
+    # simple query to prove we can fetch – tweak if you like
+    url = f"{base}/api/v2/catalog/items?search_text=golf&per_page=5&order=newest_first"
+
+    cookie_value = settings.vinted_cookie.strip()
+    # If user gave only the session token, build the Cookie header ourselves.
+    if "=" not in cookie_value:
+        cookie_header = f"vinted_fr_session={cookie_value}"
+    else:
+        # If user pasted a full cookie header, use it verbatim.
+        cookie_header = cookie_value
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-GB,en;q=0.9",
+        "Referer": f"{base}/",
+        "Origin": base,
+        "Connection": "keep-alive",
+        "Cookie": cookie_header,
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+            r = await client.get(url, headers=headers)
+            status = r.status_code
+            text = r.text[:8000]  # cap output
+            if r.headers.get("content-type", "").startswith("application/json"):
+                data = r.json()
+                items = data.get("items") or data.get("catalog_items") or []
+                titles = [i.get("title") for i in items if isinstance(i, dict)]
+                return {"status": status, "count": len(titles), "titles": titles[:5]}
+            else:
+                return {"status": status, "body": text}
+    except Exception as e:
+        import traceback
+        return {
+            "status": "error",
+            "detail": str(e),
+            "trace": traceback.format_exc().splitlines()[-15:],
+        }
