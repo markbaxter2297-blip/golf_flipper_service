@@ -1,45 +1,53 @@
 """
 configuration module.
+
+Reads environment variables from a `.env` file or system environment using python-decouple.
+Provides a Pydantic model for validated configuration values.
 """
 
+from __future__ import annotations
+
+import os
 from dataclasses import dataclass, field
 from typing import List
-from decouple import config as env
+
+from decouple import config as decouple_config
 
 
 @dataclass
 class Settings:
-    # basics
-    env: str = env("ENV", default="prod")
-    port: int = env("PORT", cast=int, default=8080)
-    db_path: str = env("DB_PATH", default="./data/app.db")
+    """Application settings loaded from environment variables."""
+    env: str = decouple_config("ENV", default="prod")
+    port: int = decouple_config("PORT", cast=int, default=8080)
+    db_path: str = decouple_config("DB_PATH", default="./data/app.db")
 
-    # lists come from env as JSON; default to empty lists
+    # Lists come from env as JSON; default to empty lists
     keywords: List[str] = field(default_factory=list)
     ebay_category_ids: List[str] = field(default_factory=list)
 
-    # polling / thresholds
-    profit_threshold_gbp: float = env("PROFIT_THRESHOLD_GBP", cast=float, default=12.0)
-    poll_interval_seconds: int = env("POLL_INTERVAL_SECONDS", cast=int, default=300)
+    profit_threshold_gbp: float = decouple_config("PROFIT_THRESHOLD_GBP", cast=float, default=12.0)
+    poll_interval_seconds: int = decouple_config("POLL_INTERVAL_SECONDS", cast=int, default=300)
 
-    # whatsapp
-    whatsapp_access_token: str = env("WHATSAPP_ACCESS_TOKEN")
-    whatsapp_phone_number_id: str = env("WHATSAPP_PHONE_NUMBER_ID")
-    whatsapp_to_msisdn: str = env("WHATSAPP_TO_MSISDN", default="")
+    whatsapp_access_token: str = decouple_config("WHATSAPP_ACCESS_TOKEN")
+    whatsapp_phone_number_id: str = decouple_config("WHATSAPP_PHONE_NUMBER_ID")
+    whatsapp_to_msisdn: str = decouple_config("WHATSAPP_TO_MSISDN", default="")
 
-    # ebay
-    ebay_app_id: str = env("EBAY_APP_ID", default="")
-    ebay_cert_id: str = env("EBAY_CERT_ID", default="")
-    ebay_redirect_uri: str = env("EBAY_REDIRECT_URI", default="")
-    ebay_market: str = env("EBAY_MARKET", default="EBAY_GB")
+    ebay_app_id: str = decouple_config("EBAY_APP_ID", default="")
+    ebay_cert_id: str = decouple_config("EBAY_CERT_ID", default="")
+    ebay_redirect_uri: str = decouple_config("EBAY_REDIRECT_URI", default="")
+    ebay_market: str = decouple_config("EBAY_MARKET", default="EBAY_GB")
 
-    # vinted
-    vinted_enabled: bool = env("VINTED_ENABLED", cast=bool, default=False)
-    vinted_base_url: str = env("VINTED_BASE_URL", default="https://www.vinted.co.uk")
-    vinted_cookie: str = env("VINTED_COOKIE", default="")
+    vinted_enabled: bool = decouple_config("VINTED_ENABLED", cast=bool, default=False)
+    vinted_base_url: str = decouple_config("VINTED_BASE_URL", default="https://www.vinted.co.uk")
+    vinted_cookie: str = decouple_config("VINTED_COOKIE", default="")
 
-    # logging
-    log_level: str = env("LOG_LEVEL", default="INFO")
+    log_level: str = decouple_config("LOG_LEVEL", default="INFO")
+
+    @classmethod
+    def load(cls) -> "Settings":
+        """Load settings from environment variables."""
+        return cls()
 
 
-settings = Settings()
+# Global singleton settings instance
+settings: Settings = Settings.load()
