@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
 
 from decouple import config as decouple_config
 
@@ -26,8 +26,8 @@ class Settings:
     port: int = decouple_config("PORT", cast=int, default=8080)
     db_path: str = decouple_config("DB_PATH", default="./data/app.db")
 
-    keywords: List[str] = _str_to_list(decouple_config("KEYWORDS", default="golf"))
-    ebay_category_ids: List[str] = _str_to_list(decouple_config("EBAY_CATEGORY_IDS", default=""))
+   keywords: List[str] = field(default_factory=list)
+    ebay_category_ids: List[str] = field(default_factory=list)
     profit_threshold_gbp: float = decouple_config("PROFIT_THRESHOLD_GBP", cast=float, default=12.0)
     poll_interval_seconds: int = decouple_config("POLL_INTERVAL_SECONDS", cast=int, default=300)
 
