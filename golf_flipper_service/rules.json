@@ -1,0 +1,14 @@
+{
+  "default_multiplier": 1.50,
+  "brands": {
+    "titleist": 1.90,
+    "taylormade": 1.25,
+    "odyssey": 1.35,
+    "scotty cameron": 1.50
+  },
+  "items": [
+    {"brand": "titleist", "model": "hat", "multiplier": 1.90},
+    {"brand": "taylormade", "model": "driver", "multiplier": 1.30},
+    {"brand": "odyssey", "model": "putter", "multiplier": 1.35}
+  ]
+}

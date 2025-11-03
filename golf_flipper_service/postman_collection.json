@@ -1,0 +1,39 @@
+{
+  "info": {
+    "name": "Golf Flipper Service",
+    "description": "Example requests for the Golf Flipper Service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["health"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Test Alert",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/test-alert",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["test-alert"]
+        }
+      },
+      "response": []
+    }
+  ]
+}
