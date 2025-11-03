@@ -52,3 +52,6 @@ async def test_alert(request: Request):
         return {"status": "ok", "result": result}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
+@app.get("/test-alert")
+def test_alert_get():
+    return test_alert()
